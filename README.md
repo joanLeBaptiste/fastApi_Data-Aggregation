@@ -1,4 +1,4 @@
-_# Projet Analyse de la Qualité de Vie des Personnes Âgées à Angers
+# Projet Analyse de la Qualité de Vie des Personnes Âgées à Angers
 
 ## Description du projet
 Ce projet a été réalisé par JoanLeBaptiste. Le but de ce projet est d'analyser la **qualité de vie des personnes âgées** à Angers en utilisant différentes données géographiques et des infrastructures locales.
