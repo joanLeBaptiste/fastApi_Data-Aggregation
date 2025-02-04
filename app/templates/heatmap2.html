@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Heatmap et Infrastructures</title>
+
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Google Font (optionnel, pour un style plus moderne) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap">
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            body {
+                background: #f9f9f9;
+                color: #333;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            header {
+                width: 100%;
+                background: #444;
+                color: #fff;
+                padding: 1rem 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center; /* centrer le titre */
+            }
+
+            header h1 {
+                font-weight: 600;
+                font-size: 1.5rem;
+            }
+
+            #map {
+                flex-grow: 1;
+                width: 100%;
+                min-height: 600px;
+            }
+
+            /* Boîte d'explication (en haut à droite) */
+            .info-box {
+                position: absolute;
+                top: 80px;  /* juste un peu sous le header */
+                right: 20px;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                max-width: 280px;
+                font-size: 0.9rem;
+            }
+
+            .info-box h3 {
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
+            }
+
+            .info-box p {
+                line-height: 1.4;
+                margin-bottom: 0.5rem;
+            }
+
+            .legend, .infra-legend {
+                background-color: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+                font-size: 12px;
+                line-height: 1.5;
+                position: absolute;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                transition: transform 0.3s ease;
+            }
+
+            .legend:hover, .infra-legend:hover {
+                transform: scale(1.03);
+                box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            }
+
+            .legend {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .infra-legend {
+                bottom: 20px;
+                left: 20px;
+            }
+
+            .legend i, .infra-legend i {
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                margin-right: 5px;
+            }
+
+            footer {
+                background: #444;
+                color: #fff;
+                text-align: center;
+                padding: 0.5rem 2rem;
+                font-size: 0.8rem;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Heatmap et Points des Infrastructures</h1>
+        </header>
+
+        <!-- La div pour la carte -->
+        <div id="map"></div>
+
+        <!-- Boîte explicative en haut à droite -->
+        <div class="info-box">
+            <h3>Carte des distances moyennes</h3>
+            <p>
+                Cette carte représente la <strong>distance moyenne</strong>
+                en vol d'oiseau à toutes les infrastructures.
+            </p>
+            <p>
+                Les infrastructures sont affichées avec un <strong>code couleur</strong>
+                selon leur type.
+            </p>
+        </div>
+
+        <!-- Pied de page -->
+        <footer>
+            &copy; 2025 | Projet FastApi&mdash;  Leaflet
+        </footer>
+
+        <script>
+            // Initialiser la carte
+            var map = L.map('map').setView([47.478419, -0.563166], 13); // Centre d'Angers avec zoom
+
+            // Ajouter un fond de carte
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Déterminer la couleur en fonction de la distance moyenne
+            function getColor(distance) {
+                if (distance > 10) {
+                    return 'rgba(0, 0, 139, 0.9)';
+                } else if (distance > 8) {
+                    return 'rgba(0, 0, 205, 0.7)';
+                } else if (distance > 5) {
+                    return 'rgba(65, 105, 225, 0.5)';
+                } else if (distance > 3) {
+                    return 'rgba(135, 206, 250, 0.4)';
+                } else if (distance > 1) {
+                    return 'rgba(173, 216, 230, 0.3)';
+                } else {
+                    return 'rgba(240, 248, 255, 0.2)';
+                }
+            }
+
+            // Associer une couleur pour chaque type d'infrastructure
+            function assignColorToTypes(types) {
+                const colors = {};
+                const palette = ['red', 'green', 'blue', 'yellow', 'purple']; // Palette de couleurs
+                types.forEach((type, index) => {
+                    colors[type] = palette[index % palette.length];
+                });
+                return colors;
+            }
+
+            // Ajouter la légende pour les distances
+            function DistanceLegende(map) {
+                var legende = L.control({position: 'bottomright'});
+
+                legende.onAdd = function () {
+                    var div = L.DomUtil.create('div', 'legend');
+                    div.innerHTML = `
+                        <b>Légende des Distances Moyennes</b><br>
+                        <i style="background:rgba(0, 0, 139, 0.9);"></i> > 10 km<br>
+                        <i style="background:rgba(0, 0, 205, 0.7);"></i> 8-10 km<br>
+                        <i style="background:rgba(65, 105, 225, 0.5);"></i> 5-8 km<br>
+                        <i style="background:rgba(135, 206, 250, 0.4);"></i> 3-5 km<br>
+                        <i style="background:rgba(173, 216, 230, 0.3);"></i> 1-3 km<br>
+                        <i style="background:rgba(240, 248, 255, 0.2);"></i> 0-1 km<br>
+                    `;
+                    return div;
+                };
+
+                legende.addTo(map);
+            }
+
+            // Ajouter la légende pour les infrastructures
+            function InfrastructureLegende(map, typeColors) {
+                var legende = L.control({position: 'bottomleft'});
+
+                legende.onAdd = function () {
+                    var div = L.DomUtil.create('div', 'infra-legend');
+                    div.innerHTML = '<b>Légende des Infrastructures</b><br>';
+                    for (var type in typeColors) {
+                        div.innerHTML += `
+                            <i style="background:${typeColors[type]};"></i> ${type}<br>
+                        `;
+                    }
+                    return div;
+                };
+
+                legende.addTo(map);
+            }
+
+            // Récupérer les données des zones pour la heatmap
+            async function fetchHeatmapData() {
+                const reponse = await fetch('/superheatmap/get_heatmap_data2');
+                return await reponse.json();
+            }
+
+            // Récupérer les données des infrastructures
+            async function fetchInfrastructureData() {
+                const reponse = await fetch('/superheatmap/get_infrastructure_data');
+                return await reponse.json();
+            }
+
+            // Charger les données et afficher la carte
+            async function loadData() {
+                const zones = await fetchHeatmapData();
+                const infrastructures = await fetchInfrastructureData();
+
+                // Obtenir tous les types d'infrastructures
+                const types = [...new Set(infrastructures.map(infra => infra.type))];
+                const typeColors = assignColorToTypes(types);
+
+                // Ajouter les zones
+                zones.forEach(zone => {
+                    var bounds = [
+                        [zone.latitude_min, zone.longitude_min],
+                        [zone.latitude_max, zone.longitude_max]
+                    ];
+
+                    L.rectangle(bounds, {
+                        color: getColor(zone.distance_moyenne),
+                        weight: 1,
+                        fillColor: getColor(zone.distance_moyenne),
+                        fillOpacity: 0.7
+                    }).addTo(map);
+                });
+
+                // Ajouter les infrastructures (points)
+                infrastructures.forEach(infra => {
+                    L.circleMarker([infra.latitude, infra.longitude], {
+                        radius: 8,
+                        fillColor: typeColors[infra.type],
+                        color: typeColors[infra.type],
+                        fillOpacity: 0.8
+                    }).addTo(map)
+                      .bindPopup(`<b>${infra.name}</b><br>Type: ${infra.type}`);
+                });
+
+                // Ajouter les légendes
+                DistanceLegende(map);
+                InfrastructureLegende(map, typeColors);
+            }
+
+            loadData();
+        </script>
+    </body>
+    </html>

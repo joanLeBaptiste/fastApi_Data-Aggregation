@@ -1,0 +1,55 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Type Scores</title>
+        <script>
+            async function TypeScores() {
+                try {
+                    // Récup des donnée depuis le backend
+                    const reponse = await fetch("/test/get_type_scores");
+                    const data = await reponse.json();
+
+                    // recuperation tableau html
+                    const tableBody = document.getElementById("typeScoresTableBody");
+
+                    // nettoyage table (supprimer ce qui etait deja ecrit si on recharge la page)
+                    tableBody.innerHTML = "";
+
+                    // Ajout dans le tableau
+                    data.forEach(item => {
+                        const row = document.createElement("tr");
+                        const typeCell = document.createElement("td");
+                        const scoreCell = document.createElement("td");
+
+                        typeCell.textContent = item.type_infra;
+                        scoreCell.textContent = item.score;
+
+                        row.appendChild(typeCell);
+                        row.appendChild(scoreCell);
+
+                        tableBody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error("Erreur de chargement:", error);
+                }
+            }
+
+            // Chargement
+            window.onload = TypeScores;
+        </script>
+    </head>
+    <body>
+        <h1>Type Scores</h1>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Type Infrastructure</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="typeScoresTableBody"></tbody>
+        </table>
+    </body>
+    </html>

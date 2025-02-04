@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Carte des Zones d'Angers</title>
+
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <!-- Google Font (Poppins) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="stylesheet"
+              href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap">
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            body {
+                background: #f9f9f9;
+                color: #333;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            header {
+                width: 100%;
+                background: #444;
+                color: #fff;
+                padding: 1rem 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            header h1 {
+                font-weight: 600;
+                font-size: 1.5rem;
+            }
+
+            #map {
+                flex-grow: 1;
+                width: 100%;
+                min-height: 600px;
+            }
+
+            /* Boîte explicative en haut à droite */
+            .info-box {
+                position: absolute;
+                top: 80px;
+                right: 20px;
+                background: rgba(255,255,255,0.95);
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                max-width: 300px;
+                font-size: 0.9rem;
+            }
+            .info-box h3 {
+                margin-bottom: 0.5rem;
+                font-size: 1rem;
+            }
+            .info-box p {
+                line-height: 1.4;
+                margin-bottom: 0.5rem;
+            }
+
+            .container {
+                position: relative;
+                flex: 1;
+            }
+
+            footer {
+                background: #444;
+                color: #fff;
+                text-align: center;
+                padding: 0.5rem 2rem;
+                font-size: 0.8rem;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Carte des Zones d'Angers</h1>
+        </header>
+
+        <div class="container">
+            <!-- La carte -->
+            <div id="map"></div>
+
+            <!-- Boîte explicative -->
+            <div class="info-box">
+                <h3>Cadrillage d'Angers</h3>
+                <p>
+                    Cette carte représente le cadrillage que nous avons construit de la zone d'Angers,
+                    avec les centres (en rouge) et les limites (en bleu).
+                </p>
+                <p>
+                    Nous avons défini un grand carré de départ, puis
+                    nous l'avons divisé pour faire un cadrillage, en affectant à chaque zone
+                    un centre qui servira de “cluster” pour calculer
+                    l'indice de qualité de vie pour les aînés.
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2025 | Projet FastAPI &mdash;
+        </footer>
+
+        <script>
+            // Initialiser la carte
+            var carte = L.map('map').setView([47.478419, -0.563166], 13); // Centre d'Angers
+
+            // Ajouter un fond de carte
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© ProjetAgregation'
+            }).addTo(carte);
+
+            // Récupérer les coordonnées des zones
+            async function recupererCoordonneesZones() {
+                const reponse = await fetch('/map/obtenir_coordonnees_zones');
+                const zones = await reponse.json();
+
+                zones.forEach(zone => {
+                    // Ajouter un point pour le centre de chaque zone
+                    L.circleMarker([zone.latitude_centre, zone.longitude_centre], {
+                        radius: 5,
+                        color: 'red',
+                        fillColor: 'red',
+                        fillOpacity: 1
+                    }).addTo(carte)
+                      .bindPopup(`ID Zone: ${zone.id}`);
+
+                    // Dessin du carré correspondant à la zone
+                    var limites = [
+                        [zone.latitude_min, zone.longitude_min],
+                        [zone.latitude_max, zone.longitude_max]
+                    ];
+                    L.rectangle(limites, {
+                        color: 'blue',
+                        weight: 1,
+                        fillColor: 'blue',
+                        fillOpacity: 0.2
+                    }).addTo(carte);
+                });
+            }
+
+            recupererCoordonneesZones();
+        </script>
+    </body>
+    </html>
