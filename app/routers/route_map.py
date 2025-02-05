@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.database import get_db
-
 from app import templates
 
 router = APIRouter()
@@ -16,11 +16,11 @@ def obtenir_coordonnees_zones(db: Session = Depends(get_db)):
     try:
         # Remplace l'exécution directe de la requête SQL par l'utilisation de la session SQLAlchemy
         zones = db.execute(
-            """
+            text("""
             SELECT id_zone, latitude_centre, longitude_centre,
                    latitude_min, longitude_min, latitude_max, longitude_max
             FROM angers_cadrillage
-            """
+            """)
         ).fetchall()
 
         zones_json = [

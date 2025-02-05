@@ -12,3 +12,5 @@ __pycache__/
 
 # Empêcher les dépendances locales
 venv/
+
+mysql_data/
