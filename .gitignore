@@ -1,10 +1,14 @@
+# Empêcher de push les identifiants sensibles
 .env
 
+# Empêcher les fichiers de cache et compilés
 __pycache__/
 *.pyc
 *.pyo
 
+# Empêcher les fichiers de l'éditeur PyCharm
 .idea/
 *.iml
 
+# Empêcher les dépendances locales
 venv/
