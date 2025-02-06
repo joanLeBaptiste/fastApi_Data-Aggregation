@@ -43,7 +43,7 @@ Copiez le fichier `.env.example` et renommez-le en `.env`,
 ```
 cp .env.example .env
 ```
-Changez la variable ENVIRONMENT pour choisir "local"
+dans le fichier ```.env```,Changez la variable ENVIRONMENT pour choisir "local"
 ```
 ENVIRONMENT=local  #"local" ou "docker"
 ```
@@ -58,8 +58,12 @@ uvicorn app.main:app --reload
 ```
 
 ## Installation (docker)
-Assurez-vous d'avoir installé Docker Desktop
-Positionnez vous dans le répertoire du projet avec ```cd``` 
+dans le fichier ```.env```, Changez la variable ENVIRONMENT pour choisir "docker"
+```
+ENVIRONMENT=docker  #"local" ou "docker"
+```
+Assurez-vous d'avoir installé Docker Desktop,
+Positionnez vous dans le répertoire du projet avec ```cd```, puis
 Executez l'image docker:
 ```
 docker-compose up --build -d
