@@ -17,7 +17,7 @@ services:
       - ./script_Database.sql:/docker-entrypoint-initdb.d/script_Database.sql
 
   fastapi:
-    image: joanlebaptiste/fastapi_agregation_joanlebaptiste:latest
+    image: joanlebaptiste/fast_api_agregation_joanlebaptiste:latest
     container_name: fastapi_app
     restart: always
     depends_on:
