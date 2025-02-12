@@ -128,7 +128,7 @@ def read_root():
     return HTMLResponse(content=html_content)
 
 
-
+# l
 # Événement pour lister les routes disponibles
 @app.on_event("startup")
 async def list_routes():

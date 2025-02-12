@@ -70,6 +70,10 @@ docker-compose up --build -d
 ```
 Le script de la base de donnée est automatiquement executé dans le conteneur mysql.
 
+## Installation (docker hub)
+
+retrouvez l'image sur mon compte docker: [https://hub.docker.com/u/joanlebaptiste](https://hub.docker.com/u/joanlebaptiste)
+
 ## Accéder aux pages disponibles
 
    [http://127.0.0.1:8000](http://127.0.0.1:8000)
