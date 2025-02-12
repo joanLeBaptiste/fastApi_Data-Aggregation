@@ -57,8 +57,12 @@ Lancez le projet:
 uvicorn app.main:app --reload
 ```
 
+
+
 ## Installation (docker hub)
-grace à github actions, les push sur docker hub sont automatiques, l'image est toujours à jour
+assurez vous d'avoir bien clôné le projet et d'être dans le repertoire du projet
+et d'avoir bien installé docker et docker compose.
+grâce à github actions, les push sur docker hub sont automatiques, l'image est toujours à jour
 retrouvez l'image sur mon compte docker: [https://hub.docker.com/u/joanlebaptiste](https://hub.docker.com/u/joanlebaptiste) 
 ou avec 
 ```
@@ -68,7 +72,7 @@ puis lancez:
 ```
 docker compose up
 ```
-# le lancement des conteneurs est automatisé, ainsi que la mapping
+le lancement des conteneurs est automatisé, ainsi que la mapping
 ## Accéder aux pages disponibles
 
    [http://127.0.0.1:8000](http://127.0.0.1:8000)
