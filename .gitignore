@@ -1,14 +1,13 @@
-# Empêcher de push les identifiants sensibles
 .env
 
-# Empêcher les fichiers de cache et compilés
+# fichier docker dev local
+docker-compose.override.yml
+
 __pycache__/
 *.pyc
 *.pyo
 
-# Empêcher les fichiers de l'éditeur PyCharm
 .idea/
 *.iml
 
-# Empêcher les dépendances locales
 venv/

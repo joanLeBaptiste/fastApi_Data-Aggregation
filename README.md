@@ -57,23 +57,18 @@ Lancez le projet:
 uvicorn app.main:app --reload
 ```
 
-## Installation (docker)
-dans le fichier ```.env```, Changez la variable ENVIRONMENT pour choisir "docker"
-```
-ENVIRONMENT=docker  #"local" ou "docker"
-```
-Assurez-vous d'avoir installé Docker Desktop,
-Positionnez vous dans le répertoire du projet avec ```cd```, puis
-Executez l'image docker:
-```
-docker-compose up --build -d
-```
-Le script de la base de donnée est automatiquement executé dans le conteneur mysql.
-
 ## Installation (docker hub)
-
-retrouvez l'image sur mon compte docker: [https://hub.docker.com/u/joanlebaptiste](https://hub.docker.com/u/joanlebaptiste)
-
+grace à github actions, les push sur docker hub sont automatiques, l'image est toujours à jour
+retrouvez l'image sur mon compte docker: [https://hub.docker.com/u/joanlebaptiste](https://hub.docker.com/u/joanlebaptiste) 
+ou avec 
+```
+docker pull joanlebaptiste/fast_api_agregation_joanlebaptiste:latest
+```
+puis lancez:
+```
+docker compose up
+```
+# le lancement des conteneurs est automatisé, ainsi que la mapping
 ## Accéder aux pages disponibles
 
    [http://127.0.0.1:8000](http://127.0.0.1:8000)

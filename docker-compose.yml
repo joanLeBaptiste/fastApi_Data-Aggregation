@@ -17,7 +17,7 @@ services:
       - ./script_Database.sql:/docker-entrypoint-initdb.d/script_Database.sql  # Modification ici
 
   fastapi:
-    build: .
+    image: joanlebaptiste/fast_api_agregation_joanlebaptiste:latest  # Utilisation de l'image depuis Docker Hub
     container_name: fastapi_app
     restart: always
     depends_on:
