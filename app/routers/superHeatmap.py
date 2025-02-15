@@ -1,100 +1,41 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db  # Importation de la session de base de données
-from app import templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
-import math
-from sqlalchemy import text
+from app.database import get_db
+from app.services import get_heatmap_data, get_infrastructure_data
+from app import templates
 
 router = APIRouter()
 
 
-def haversine(lat1, lon1, lat2, lon2):
-    R = 6371  # Rayon de la Terre en km
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return R * c
-
-
 @router.get("/get_heatmap_data2")
-def get_heatmap_data2(db: Session = Depends(get_db)):
+def get_heatmap_data_route(db: Session = Depends(get_db)):
     """
-    Calcule les distances moyennes aux infrastructures pour chaque zone.
+    Endpoint pour récupérer les données de la heatmap (distance moyenne aux infrastructures par zone).
     """
     try:
-        # Récupérer les zones
-        zones = db.execute(
-            text("""
-            SELECT id_zone, latitude_centre, longitude_centre,
-                   latitude_min, longitude_min,
-                   latitude_max, longitude_max
-            FROM angers_cadrillage
-            """)
-        ).fetchall()
-
-        # Récupérer les infrastructures
-        infrastructures = db.execute(
-            text("""
-            SELECT latitude, longitude FROM infrastructures
-            """)
-        ).fetchall()
-
-        heatmap_donnee = []
-        for zone in zones:
-            id_zone, lat_centre, lon_centre, lat_min, lon_min, lat_max, lon_max = zone
-            distances = []
-
-            # Calculer les distances moyennes pour la zone
-            for infra in infrastructures:
-                infra_lat, infra_lon = infra
-                distances.append(haversine(lat_centre, lon_centre, infra_lat, infra_lon))
-
-            avg_distance = sum(distances) / len(distances) if distances else 0
-
-            # Ajouter les données pour la heatmap
-            heatmap_donnee.append({
-                "id": id_zone,
-                "latitude_min": lat_min,
-                "longitude_min": lon_min,
-                "latitude_max": lat_max,
-                "longitude_max": lon_max,
-                "distance_moyenne": avg_distance
-            })
-
-        return heatmap_donnee
+        data = get_heatmap_data(db)
+        return JSONResponse(content=data)
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/get_infrastructure_data")
-def get_infrastructure_data(db: Session = Depends(get_db)):
+def get_infrastructure_data_route(db: Session = Depends(get_db)):
     """
-    Récupère les données des infrastructures avec leur type.
+    Endpoint pour récupérer les infrastructures et leurs types.
     """
     try:
-        infrastructures = db.execute(
-            text("""
-            SELECT nom, type_infra, latitude, longitude
-            FROM infrastructures
-            """)
-        ).fetchall()
-
-        infra_donnee = [
-            {"name": infra[0], "type": infra[1], "latitude": infra[2], "longitude": infra[3]}
-            for infra in infrastructures
-        ]
-
-        return infra_donnee
+        data = get_infrastructure_data(db)
+        return JSONResponse(content=data)
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("", response_class=HTMLResponse)
 async def heatmap_zones_page(request: Request):
     """
-    Affiche une carte interactive avec une heatmap et des points pour les infrastructures
+    Affiche une carte interactive avec la heatmap et les infrastructures.
     """
     return templates.TemplateResponse("heatmap2.html", {"request": request})

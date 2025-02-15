@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemins et Infrastructures</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Google Font (Poppins) -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            background: #444;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        footer {
+            background: #444;
+            color: #fff;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        #map {
+            flex-grow: 1;
+            width: 100%;
+            height: 600px;
+        }
+
+        .info-box {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 300px;
+            font-size: 0.9rem;
+        }
+
+        .legend {
+            background-color: white;
+            padding: 10px;
+            font-size: 12px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Chemins et Infrastructures</h1>
+    </header>
+
+    <div class="info-box">
+        <h3>Carte des chemins</h3>
+        <p>
+            Cette carte représente chaque centre de zone, coloré selon la distance à l’infrastructure la plus proche.
+            Cliquez sur un point pour voir les chemins et infrastructures.
+        </p>
+    </div>
+
+    <div id="map"></div>
+
+    <footer>
+        &copy; 2025 | Projet FastAPI — Visualisation des chemins
+    </footer>
+
+    <script>
+        var zones = JSON.parse('{{ zones_list | safe }}');
+        var couleursInfrastructures = JSON.parse('{{ couleurs_infrastructures | safe }}');
+
+        var map = L.map('map').setView([47.478419, -0.563166], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var displayedPaths = [];
+        var displayedInfra = [];
+
+        function togglePaths(id_zone) {
+            displayedPaths.forEach(layer => map.removeLayer(layer));
+            displayedInfra.forEach(layer => map.removeLayer(layer));
+            displayedPaths = [];
+            displayedInfra = [];
+
+            fetch('/asset/GeoJson_chemin_voiture.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    data.features.forEach(feature => {
+                        if (feature.properties.id_zone == id_zone) {
+                            var path = L.geoJSON(feature, {
+                                style: { color: 'blue', weight: 3 }
+                            }).addTo(map);
+                            displayedPaths.push(path);
+                        }
+                    });
+                });
+
+            fetch('/chemins/get_infrastructure_by_paths/' + id_zone)
+                .then(response => response.json())
+                .then(infrastructures => {
+                    infrastructures.forEach(inf => {
+                        var color = couleursInfrastructures[inf.type_infra] || 'black';
+                        var marker = L.marker([inf.latitude, inf.longitude], {
+                            icon: L.divIcon({
+                                className: 'leaflet-div-icon',
+                                html: `<div style="background-color:${color}; width: 12px; height: 12px; border-radius: 50%;"></div>`
+                            })
+                        }).addTo(map);
+                        displayedInfra.push(marker);
+                    });
+                });
+        }
+
+        zones.forEach(zone => {
+            fetch('/chemins/get_center_color/' + zone.id_zone)
+                .then(response => response.json())
+                .then(data => {
+                    var color = data.color;
+                    L.circle([zone.latitude_centre, zone.longitude_centre], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 1,
+                        radius: 100
+                    }).addTo(map).on('click', () => togglePaths(zone.id_zone));
+                });
+        });
+
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<b>Types d\'infrastructures</b><br>';
+            for (var type in couleursInfrastructures) {
+                div.innerHTML += `<i style="background:${couleursInfrastructures[type]}; width: 18px; height: 18px; display:inline-block;"></i> ${type}<br>`;
+            }
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>

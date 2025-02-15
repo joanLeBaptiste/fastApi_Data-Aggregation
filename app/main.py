@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-
+from sqlalchemy.sql import text
 
 # Import des routeurs centralisés dans __init__.py du package routeur
 from app.routers import (
@@ -35,13 +35,13 @@ app.mount("/asset", StaticFiles(directory="./app/asset"), name="asset")
 
 # Routes pour tester la base de données
 @app.get("/test_db", tags=["Test"])
-def test_db(db: Session = Depends(get_db)):  # Utilisation propre de get_db()
+def test_db(db: Session = Depends(get_db)):
     try:
-        res = db.execute("SELECT 1").scalar()
+        res = db.execute(text("SELECT 1")).scalar()  # Utilisation correcte de text()
         return {"message": "Database connection successful", "result": res}
     except Exception as e:
         return {"error": str(e)}
-
+#gg
 
 # Page de base
 @app.get("/", tags=["Root"], response_class=HTMLResponse)
@@ -127,14 +127,6 @@ def read_root():
     """
     return HTMLResponse(content=html_content)
 
-
-# l
-# Événement pour lister les routes disponibles
-@app.on_event("startup")
-async def list_routes():
-    print("📋 Routes disponibles :")
-    for route in app.routes:
-        print(f"{route.path} -> {route.name}")
-
+####rjgj
 
 # uvicorn app.main:app --reload
