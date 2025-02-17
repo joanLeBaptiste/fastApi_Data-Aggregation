@@ -24,7 +24,7 @@ services:
       - db
     environment:
       ENVIRONMENT: docker
-      DATABASE_URL_DOCKER: mysql+mysqlconnector://user:password@db:3306/fastapi_project
+      DATABASE_URL_DOCKER: mysql+mysqlconnector://user:password@db:3306/fastapiproject
     ports:
       - "8000:8000"
     volumes:

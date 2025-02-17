@@ -50,7 +50,7 @@ ENVIRONMENT=local  #"local" ou "docker"
 ### 3. **Modifiez `.env` avec vos propres identifiants MySQL**  
    Exemple :
 ```
-DATABASE_URL=mysql+mysqlconnector://root:motdepasse@127.0.0.1:3306/fastapi_project
+DATABASE_URL=mysql+mysqlconnector://root:motdepasse@127.0.0.1:3306/fastapiproject
 ```
 Lancez le projet:
 ```
