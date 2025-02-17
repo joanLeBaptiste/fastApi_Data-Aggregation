@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: fastapiproject
+      MYSQL_DATABASE: fastapi_project
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
@@ -24,7 +24,7 @@ services:
       - db
     environment:
       ENVIRONMENT: docker
-      DATABASE_URL_DOCKER: mysql+mysqlconnector://user:password@db:3306/fastapiproject
+      DATABASE_URL_DOCKER: mysql+mysqlconnector://user:password@db:3306/fastapi_project
     ports:
       - "8000:8000"
     volumes:

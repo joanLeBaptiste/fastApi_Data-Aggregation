@@ -18,7 +18,7 @@
 --
 -- Table structure for table `angers_cadrillage`
 --
-USE fastapiproject;
+USE fastapi_project;
 
 DROP TABLE IF EXISTS `angers_cadrillage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
