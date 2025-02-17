@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: fastapi_project
+      MYSQL_DATABASE: fastapiproject
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:

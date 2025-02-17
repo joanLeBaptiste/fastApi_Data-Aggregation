@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: fastapi_project
+-- Host: 127.0.0.1    Database: fastapiproject
 -- ------------------------------------------------------
--- Server version	8.1.0
+-- Server version	8.0.41
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -107,6 +107,24 @@ INSERT INTO `infrastructures` VALUES ('ALLARD_EMELINE_474913_-056127','ALLARD EM
 UNLOCK TABLES;
 
 --
+-- Temporary view structure for view `optimized_infrastructure_distances`
+--
+
+DROP TABLE IF EXISTS `optimized_infrastructure_distances`;
+/*!50001 DROP VIEW IF EXISTS `optimized_infrastructure_distances`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `optimized_infrastructure_distances` AS SELECT
+ 1 AS `id_zone`,
+ 1 AS `latitude_centre`,
+ 1 AS `longitude_centre`,
+ 1 AS `rayon_km`,
+ 1 AS `infra_latitude`,
+ 1 AS `infra_longitude`,
+ 1 AS `score`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `type_scores`
 --
 
@@ -129,6 +147,93 @@ LOCK TABLES `type_scores` WRITE;
 INSERT INTO `type_scores` VALUES ('Bibliothèque',1),('Médecin',3),('Pharmacie',2),('Pompiers',3),('Santé',5);
 /*!40000 ALTER TABLE `type_scores` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `vue_infrastructures_par_chemins`
+--
+
+DROP TABLE IF EXISTS `vue_infrastructures_par_chemins`;
+/*!50001 DROP VIEW IF EXISTS `vue_infrastructures_par_chemins`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `vue_infrastructures_par_chemins` AS SELECT
+ 1 AS `id_infra`,
+ 1 AS `nom`,
+ 1 AS `type_infra`,
+ 1 AS `latitude`,
+ 1 AS `longitude`,
+ 1 AS `id_zone`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `vue_infrastructures_scores`
+--
+
+DROP TABLE IF EXISTS `vue_infrastructures_scores`;
+/*!50001 DROP VIEW IF EXISTS `vue_infrastructures_scores`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `vue_infrastructures_scores` AS SELECT
+ 1 AS `infra_latitude`,
+ 1 AS `infra_longitude`,
+ 1 AS `score`,
+ 1 AS `type_infra`,
+ 1 AS `id_infra`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `optimized_infrastructure_distances`
+--
+
+/*!50001 DROP VIEW IF EXISTS `optimized_infrastructure_distances`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `optimized_infrastructure_distances` AS select `ac`.`id_zone` AS `id_zone`,`ac`.`latitude_centre` AS `latitude_centre`,`ac`.`longitude_centre` AS `longitude_centre`,`ac`.`rayon_km` AS `rayon_km`,`i`.`latitude` AS `infra_latitude`,`i`.`longitude` AS `infra_longitude`,`ts`.`score` AS `score` from (((`angers_cadrillage` `ac` join `chemins` `c` on((`ac`.`id_zone` = `c`.`id_zone`))) join `infrastructures` `i` on((`c`.`id_infra` = `i`.`id_infra`))) join `type_scores` `ts` on((`i`.`type_infra` = `ts`.`type_infra`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vue_infrastructures_par_chemins`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vue_infrastructures_par_chemins`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vue_infrastructures_par_chemins` AS select `i`.`id_infra` AS `id_infra`,`i`.`nom` AS `nom`,`i`.`type_infra` AS `type_infra`,`i`.`latitude` AS `latitude`,`i`.`longitude` AS `longitude`,`c`.`id_zone` AS `id_zone` from (`infrastructures` `i` join `chemins` `c` on((`i`.`id_infra` = `c`.`id_infra`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vue_infrastructures_scores`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vue_infrastructures_scores`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vue_infrastructures_scores` AS select `i`.`latitude` AS `infra_latitude`,`i`.`longitude` AS `infra_longitude`,`ts`.`score` AS `score`,`i`.`type_infra` AS `type_infra`,`i`.`id_infra` AS `id_infra` from (`infrastructures` `i` join `type_scores` `ts` on((`i`.`type_infra` = `ts`.`type_infra`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -139,66 +244,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-05 15:43:30
-
-SELECT *
-FROM type_scores;
-
-SELECT user, host FROM mysql.user;
-
-SHOW VARIABLES LIKE 'bind_address';
-
-
--- VUE POUR PAGES
-
--- Vue types_scores
-
-CREATE OR REPLACE VIEW vue_infrastructures_scores AS
-SELECT
-    i.latitude AS infra_latitude,
-    i.longitude AS infra_longitude,
-    ts.score,
-    i.id_infra
-FROM
-    infrastructures i
-JOIN
-    type_scores ts ON i.type_infra = ts.type_infra;
-
-SELECT *
-FROM vue_infrastructures_scores;
-
--- vue heatmap 1
-
-CREATE OR REPLACE VIEW vue_infrastructures_scores AS
-SELECT
-    i.latitude AS infra_latitude,
-    i.longitude AS infra_longitude,
-    ts.score,
-    i.type_infra,
-    i.id_infra
-FROM
-    infrastructures i
-JOIN
-    type_scores ts ON i.type_infra = ts.type_infra;
-
-SELECT *
-FROM  vue_infrastructures_scores;
-
--- vue chemins
-
-
-CREATE OR REPLACE VIEW vue_infrastructures_par_chemins AS
-SELECT
-    i.id_infra,
-    i.nom,
-    i.type_infra,
-    i.latitude,
-    i.longitude,
-    c.id_zone
-FROM
-    infrastructures i
-JOIN
-    chemins c ON i.id_infra = c.id_infra;
-
-SELECT *
-FROM  vue_infrastructures_par_chemins;
+-- Dump completed on 2025-02-17 14:11:44
