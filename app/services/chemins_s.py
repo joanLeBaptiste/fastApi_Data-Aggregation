@@ -1,5 +1,7 @@
+from app.models import Chemin, AngersCadrillage
 from sqlalchemy.orm import Session
-from app.models import AngersCadrillage, Infrastructures, Chemin
+from sqlalchemy import text
+
 
 # Définition des couleurs pour chaque type d'infrastructure
 couleurs_infrastructures = {
@@ -49,13 +51,15 @@ def interpoler_couleur(value):
 
 def obtenir_infrastructures_par_chemins(db: Session, id_zone: str):
     """
-    Récupère les infrastructures associées aux chemins d'une zone donnée.
+    Récupère les infrastructures associées aux chemins d'une zone donnée en utilisant la vue.
     """
     try:
-        # Récupération des infrastructures via une jointure avec la table Chemins
-        infrastructures = db.query(Infrastructures).join(Chemin, Chemin.id_infra == Infrastructures.id_infra) \
-                                                  .filter(Chemin.id_zone == id_zone) \
-                                                  .all()
+        # Récupération des infrastructures via la vue 'vue_infrastructures_par_chemins'
+        infrastructures = db.execute(text("""
+            SELECT id_infra, nom, type_infra, latitude, longitude
+            FROM vue_infrastructures_par_chemins
+            WHERE id_zone = :id_zone
+        """), {"id_zone": id_zone}).fetchall()
 
         if not infrastructures:
             raise Exception("Aucune infrastructure trouvée pour cette zone")

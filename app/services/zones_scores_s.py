@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.utils.haversine import haversine  # Utilisation d'un utilitaire externe pour le calcul
-from app.models import AngersCadrillage, Infrastructures, TypeScores  # Correction du nom du modèle
-
+from app.models import AngersCadrillage  # Seulement le modèle pour la zone (première requête)
+from sqlalchemy import text
 
 def calculer_scores_zones(db: Session):
     """
@@ -16,18 +16,17 @@ def calculer_scores_zones(db: Session):
             AngersCadrillage.rayon_km
         ).all()
 
-        # Récupération des infrastructures et de leurs scores
-        infrastructures = db.query(
-            Infrastructures.latitude,
-            Infrastructures.longitude,
-            TypeScores.score  # ✅ Correction ici
-        ).join(TypeScores, Infrastructures.type_infra == TypeScores.type_infra).all()
+        # Récupération des infrastructures et de leurs scores à partir de la vue
+        infrastructures = db.execute(text("""
+            SELECT infra_latitude, infra_longitude, score, id_infra
+            FROM vue_infrastructures_scores
+        """)).fetchall()
 
         scores_zones = []
         for zone_id, zone_lat, zone_lon, zone_radius in zones:
             total_score = 0
 
-            for infra_lat, infra_lon, infra_score in infrastructures:
+            for infra_lat, infra_lon, infra_score, _ in infrastructures:
                 distance = haversine(zone_lat, zone_lon, infra_lat, infra_lon)
 
                 if distance <= zone_radius:

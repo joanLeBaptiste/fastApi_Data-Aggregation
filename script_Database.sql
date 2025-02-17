@@ -18,6 +18,7 @@
 --
 -- Table structure for table `angers_cadrillage`
 --
+USE fastapiproject;
 
 DROP TABLE IF EXISTS `angers_cadrillage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -139,3 +140,65 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-02-05 15:43:30
+
+SELECT *
+FROM type_scores;
+
+SELECT user, host FROM mysql.user;
+
+SHOW VARIABLES LIKE 'bind_address';
+
+
+-- VUE POUR PAGES
+
+-- Vue types_scores
+
+CREATE OR REPLACE VIEW vue_infrastructures_scores AS
+SELECT
+    i.latitude AS infra_latitude,
+    i.longitude AS infra_longitude,
+    ts.score,
+    i.id_infra
+FROM
+    infrastructures i
+JOIN
+    type_scores ts ON i.type_infra = ts.type_infra;
+
+SELECT *
+FROM vue_infrastructures_scores;
+
+-- vue heatmap 1
+
+CREATE OR REPLACE VIEW vue_infrastructures_scores AS
+SELECT
+    i.latitude AS infra_latitude,
+    i.longitude AS infra_longitude,
+    ts.score,
+    i.type_infra,
+    i.id_infra
+FROM
+    infrastructures i
+JOIN
+    type_scores ts ON i.type_infra = ts.type_infra;
+
+SELECT *
+FROM  vue_infrastructures_scores;
+
+-- vue chemins
+
+
+CREATE OR REPLACE VIEW vue_infrastructures_par_chemins AS
+SELECT
+    i.id_infra,
+    i.nom,
+    i.type_infra,
+    i.latitude,
+    i.longitude,
+    c.id_zone
+FROM
+    infrastructures i
+JOIN
+    chemins c ON i.id_infra = c.id_infra;
+
+SELECT *
+FROM  vue_infrastructures_par_chemins;

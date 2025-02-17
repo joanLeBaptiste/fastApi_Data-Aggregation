@@ -64,11 +64,18 @@ assurez vous d'avoir bien clôné le projet et d'être dans le repertoire du pro
 et d'avoir bien installé docker et docker compose.
 grâce à github actions, les push sur docker hub sont automatiques, l'image est toujours à jour
 retrouvez l'image sur mon compte docker: [https://hub.docker.com/u/joanlebaptiste](https://hub.docker.com/u/joanlebaptiste) 
-ou avec 
+
+Nous utilisons un fichier `.env` pour stocker les informations de connexion.
+Copiez le fichier `.env.example` et renommez-le en `.env`, 
 ```
-docker pull joanlebaptiste/fast_api_agregation_joanlebaptiste:latest
+cp .env.example .env
+```
+dans le fichier ```.env```,Changez la variable ENVIRONMENT pour choisir "docker"
+```
+ENVIRONMENT=docker  #"local" ou "docker"
 ```
 puis lancez:
+
 ```
 docker compose up
 ```

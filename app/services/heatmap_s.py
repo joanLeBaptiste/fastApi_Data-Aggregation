@@ -1,7 +1,7 @@
-# app/services.py
 from sqlalchemy.orm import Session
-from app.models import AngersCadrillage, Infrastructures, TypeScores
-from app.utils.haversine import haversine
+from app.models import AngersCadrillage  # Seulement le modèle pour les zones (première requête)
+from sqlalchemy import text
+from app.utils.haversine import haversine  # Utilisation d'un utilitaire externe pour le calcul
 
 
 # ✅ Récupérer les données nécessaires pour la heatmap
@@ -10,10 +10,11 @@ def obtenir_donnees_heatmap(db: Session):
         # Récupération des zones via le modèle SQLAlchemy
         zones = db.query(AngersCadrillage).all()
 
-        # Récupération des infrastructures avec leurs scores et types via le modèle SQLAlchemy
-        infrastructures = db.query(Infrastructures.latitude, Infrastructures.longitude, TypeScores.score, Infrastructures.type_infra) \
-                            .join(TypeScores, Infrastructures.type_infra == TypeScores.type_infra) \
-                            .all()
+        # Récupération des infrastructures et de leurs scores à partir de la vue
+        infrastructures = db.execute(text("""
+            SELECT infra_latitude, infra_longitude, score, type_infra
+            FROM vue_infrastructures_scores
+        """)).fetchall()
 
         donnees_heatmap = []
         for zone in zones:
